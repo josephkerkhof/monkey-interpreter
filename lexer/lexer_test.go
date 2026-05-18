@@ -131,6 +131,47 @@ func TestComparators(t *testing.T) {
 	assertTokens(t, tests, l)
 }
 
+func TestControlFlowKeywords(t *testing.T) {
+	input := `if (5 < 10) {
+	return true;
+} else {
+	return false;
+}`
+
+	tests := []testCase{
+		// line 1
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+
+		// line 2
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.SEMICOLON, ";"},
+
+		// line 3
+		{token.RBRACE, "}"},
+		{token.ELSE, "else"},
+		{token.LBRACE, "{"},
+
+		// line 4
+		{token.RETURN, "return"},
+		{token.FALSE, "false"},
+		{token.SEMICOLON, ";"},
+
+		// line 5
+		{token.RBRACE, "}"},
+	}
+
+	l := New(input)
+
+	assertTokens(t, tests, l)
+}
+
 func assertTokens(t *testing.T, tests []testCase, l *Lexer) {
 	t.Helper()
 	for i, tt := range tests {
