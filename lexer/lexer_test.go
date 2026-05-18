@@ -5,13 +5,15 @@ import (
 	"testing"
 )
 
+type testCase struct {
+	expectedType    token.TokenType
+	expectedLiteral string
+}
+
 func TestNextToken(t *testing.T) {
 	input := `=+(){},;`
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
+	tests := []testCase{
 		{token.ASSIGN, "="},
 		{token.PLUS, "+"},
 		{token.LPAREN, "("},
@@ -25,13 +27,7 @@ func TestNextToken(t *testing.T) {
 
 	l := New(input)
 
-	for i, tt := range tests {
-		tok := l.NextToken()
-
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
-		}
-	}
+	assertTokens(t, tests, l)
 }
 
 func TestNextTokenMultipleLines(t *testing.T) {
@@ -44,10 +40,7 @@ let add = fn(x, y) {
 let result = add(five, ten);
 `
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
+	tests := []testCase{
 		// line 1
 		{token.LET, "let"},
 		{token.IDENT, "five"},
@@ -99,6 +92,47 @@ let result = add(five, ten);
 
 	l := New(input)
 
+	assertTokens(t, tests, l)
+}
+
+func TestOperators(t *testing.T) {
+	input := `=+!-/*5;`
+
+	tests := []testCase{
+		{token.ASSIGN, "="},
+		{token.PLUS, "+"},
+		{token.BANG, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+	}
+
+	l := New(input)
+
+	assertTokens(t, tests, l)
+}
+
+func TestComparators(t *testing.T) {
+	input := `5 < 10 > 5;`
+
+	tests := []testCase{
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.GT, ">"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+	}
+
+	l := New(input)
+
+	assertTokens(t, tests, l)
+}
+
+func assertTokens(t *testing.T, tests []testCase, l *Lexer) {
+	t.Helper()
 	for i, tt := range tests {
 		tok := l.NextToken()
 
