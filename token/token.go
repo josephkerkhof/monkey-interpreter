@@ -23,6 +23,8 @@ const (
 	BANG     TokenType = "!"
 	ASTERISK TokenType = "*"
 	SLASH    TokenType = "/"
+	EQ       TokenType = "=="
+	NOT_EQ   TokenType = "!="
 
 	// Comparators
 	LT TokenType = "<"
